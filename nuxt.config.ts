@@ -33,6 +33,9 @@ export default defineNuxtConfig({
   ui: {
     icons: ['mdi', 'heroicons']
   },
+  colorMode: {
+    preference: 'light',
+  },
   appConfig: {
     colorMode: {
       preference: 'light',
