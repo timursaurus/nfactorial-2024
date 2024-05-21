@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     count,
     error,
     statusText,
-  } = await client.from('events').select('*')
+  } = await client.from('events').select('*').range(0, 10)
 
   if (error) {
     throw createError({ statusMessage: error.message, status, statusText })

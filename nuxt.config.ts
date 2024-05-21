@@ -1,8 +1,15 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true,
+    },
+  },
+
   modules: ['@nuxt/ui', '@nuxtjs/supabase', '@nuxtjs/color-mode', '@nuxt/eslint'],
-  ssr: false,
+  // ssr: false,
   eslint: {
     config: {
       // stylistic: true,
@@ -10,7 +17,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      titleTemplate: '%s timursaurus | NFactorial 2024',
+      titleTemplate: '%s Eventmaster | timursaurus | nfactorial 2024',
       // titleTemplate(title) {
       //   const res = [title, "timursaurus", "NFactorial 2024"]
       //     .filter(Boolean)
@@ -20,11 +27,19 @@ export default defineNuxtConfig({
       // },
     },
   },
+  supabase: {
+    redirect: false,
+  },
+  ui: {
+    icons: ['mdi', 'heroicons']
+  },
   appConfig: {
     colorMode: {
       preference: 'light',
     },
+
     ui: {
+
       primary: 'sky',
     },
   },

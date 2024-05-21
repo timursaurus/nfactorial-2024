@@ -84,7 +84,7 @@ export type Database = {
           id: number
           registration_date: string | null
           user_id: string | null
-          calendar_event_id: string | null
+          calendar_event_id?: string | null
         }
         Insert: {
           created_at?: string
@@ -92,7 +92,7 @@ export type Database = {
           id?: number
           registration_date?: string | null
           user_id?: string | null
-          calendar_event_id: string | null
+          calendar_event_id?: string | null
         }
         Update: {
           created_at?: string
@@ -100,7 +100,7 @@ export type Database = {
           id?: number
           registration_date?: string | null
           user_id?: string | null
-          calendar_event_id: string | null
+          calendar_event_id?: string | null
         }
         Relationships: []
       }

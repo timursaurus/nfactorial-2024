@@ -1,7 +1,10 @@
 <template>
   <AppHeader />
-  <UNotifications/>
+  <ClientOnly>
+    <UNotifications />
+  </ClientOnly>
   <AppContainer>
     <NuxtPage />
   </AppContainer>
+  <AppFooter />
 </template>
