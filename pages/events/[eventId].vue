@@ -20,7 +20,7 @@
       <template v-else>
         <UButton
           v-if="data?.id && !data.registration && user?.id"
-          :loading="pending"
+          :loading="pending || loading.register"
           :disabled="pending"
           @click="register"
         >
@@ -32,13 +32,27 @@
 
         <template v-if="data?.registration?.id">
           <div class="flex gap-2 justify-between">
-            <UButton color="red" @click="unregister">
+            <UButton
+              :loading="loading.unregister"
+              color="red"
+              @click="unregister"
+            >
               Отменить регистрацию
             </UButton>
-            <UButton v-if="!data.registration?.calendar_event_id" @click="addToCalendar">
+            <UButton
+              v-if="!data.registration?.calendar_event_id"
+              :disabled="loading.calendar"
+              :loading="loading.calendar"
+              @click="addToCalendar"
+            >
               Добавить в Google Calendar
             </UButton>
-            <UButton v-if="data.registration.calendar_event_id" @click="removeFromCalendar" >
+            <UButton
+              v-if="data.registration.calendar_event_id"
+              :disabled="loading.calendar"
+              :loading="loading.calendar"
+              @click="removeFromCalendar"
+            >
               Убрать из Google Calendar
             </UButton>
           </div>
@@ -61,10 +75,21 @@ const { data, pending, refresh } = await useLazyFetch<AppEvent>(
 const eventId = route.params?.eventId as string;
 const toast = useToast();
 
+const loading = reactive({
+  register: false,
+  unregister: false,
+  calendar: false,
+});
+
 async function removeFromCalendar() {
   if (data.value?.registration?.calendar_event_id) {
+    loading.calendar = true;
     const id = data.value?.registration?.calendar_event_id;
-    await $fetch(`/api/events/${eventId}/calendar/${id}`, { method: 'DELETE' })
+    await $fetch(`/api/events/${eventId}/calendar/${id}`, {
+      method: "DELETE",
+    }).finally(() => {
+      loading.calendar = false;
+    });
     refresh();
   }
 }
@@ -88,18 +113,20 @@ async function addToCalendar() {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
     };
-
+    loading.calendar = true;
     const res = await $fetch(`/api/events/${eventId}/calendar`, {
       method: "POST",
       body: JSON.stringify(body),
       headers: useRequestHeaders(["cookie"]),
+    }).finally(() => {
+      loading.calendar = false;
     });
     if (res) {
       toast.add({
         title: "Успешно",
         description: `Мероприятие ${data.value?.title} добавлено в ваш Google Calendar`,
       });
-      refresh()
+      refresh();
     }
   }
 }
@@ -107,24 +134,31 @@ async function addToCalendar() {
 async function unregister() {
   if (data.value?.registration?.id) {
     const id = data.value?.registration?.id;
-    const res = await $fetch(`/api/registrations/${id}`, { method: "delete" });
+    loading.unregister = true;
+    const res = await $fetch(`/api/registrations/${id}`, {
+      method: "delete",
+    }).finally(() => {
+      loading.unregister = false;
+    });
     if (res?.status === 204) {
       toast.add({
         title: "Успешно",
         description: `Вы успешно отменили регистрацию на ${data.value?.title}`,
       });
       await removeFromCalendar().finally(() => {
-        refresh()
-      })
-
+        refresh();
+      });
     }
   }
 }
 
 async function register() {
   if (!data.value?.registration) {
+    loading.register = true;
     const res = await $fetch(`/api/events/${eventId}/register`, {
       method: "POST",
+    }).finally(() => {
+      loading.register = true;
     });
     if (res?.status === 200) {
       toast.add({
@@ -134,8 +168,7 @@ async function register() {
           {
             label: "Добавить в Google-календарь?",
             click: () => {
-              addToCalendar()
-
+              addToCalendar();
             },
           },
         ],
